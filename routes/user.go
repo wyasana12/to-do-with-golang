@@ -13,4 +13,5 @@ func UserRoutes(r *mux.Router) {
 	router.Use(middleware.Auth)
 
 	router.HandleFunc("/profile", controllers.Profile).Methods("GET")
+	router.HandleFunc("/update-profile", controllers.UpdateProfile).Methods("PUT")
 }

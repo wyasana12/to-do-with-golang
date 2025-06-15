@@ -3,18 +3,23 @@ package helper
 import (
 	"fmt"
 	"time"
+	"to-do-list-go/config"
 	"to-do-list-go/models"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
-
-var mySigningKey = []byte("mySignCreateKey")
 
 type MyCustomClass struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
+	Email    string `json:"email"`
 	jwt.RegisteredClaims
+}
+
+func GenerateVerificationToken(length int) string {
+	return uuid.NewString()
 }
 
 func CreateToken(user *models.User) (string, error) {
@@ -22,6 +27,7 @@ func CreateToken(user *models.User) (string, error) {
 		user.ID,
 		user.Name,
 		user.Username,
+		user.Email,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(30 * time.Minute)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -30,13 +36,13 @@ func CreateToken(user *models.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(mySigningKey)
+	ss, err := token.SignedString([]byte(config.ENV.JWT_SECRET_KEY))
 	return ss, err
 }
 
 func ValidateToken(tokenString string) (any, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &MyCustomClass{}, func(t *jwt.Token) (interface{}, error) {
-		return mySigningKey, nil
+		return []byte(config.ENV.JWT_SECRET_KEY), nil
 	})
 
 	if err != nil {
