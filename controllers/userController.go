@@ -38,6 +38,11 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	if err := config.Validate.Struct(input); err != nil {
+		helper.Response(w, 400, "Validation Error", helper.FormatValidationError(err))
+		return
+	}
+
 	var dbUser models.User
 	if err := config.DB.First(&dbUser, user.ID).Error; err != nil {
 		helper.Response(w, 404, "User Not Found", nil)

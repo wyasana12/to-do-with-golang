@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: To-do-list-Golang
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Autentikasi
+  - name: ToDo
+  - name: Profile
+  - name: Trash
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Autentikasi
+      summary: Register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: Wyasana Aji Kusuma Wardana
+                username: wyasana12
+                email: wyasana12@gmail.com
+                password: wyasana123
+                password_confirm: wyasana123
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/login:
+    post:
+      tags:
+        - Autentikasi
+      summary: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: "{\r\n    \"username\": \"wyasana12\",\r\n    // \"email\": \"wyasana12@gmail.com\",\r\n    \"password\": \"wyasana123\"\r\n}"
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/auth/verify-email:
+    get:
+      tags:
+        - Autentikasi
+      summary: Token
+      parameters:
+        - name: token
+          in: query
+          schema:
+            type: string
+          example: d0cab6f5-4805-4173-a850-aea193b21d00
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos:
+    get:
+      tags:
+        - ToDo
+      summary: Get ToDo
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - ToDo
+      summary: Create ToDo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: "{\r\n    \"title\": \"Test Todo 5\",\r\n    // \"description\": \"Test Todo Bukan Kaleng-kaleng\",\r\n    \"start_date\": \"2025-06-16T09:00:00Z\",\r\n    \"end_date\": \"2025-06-18T09:00:00Z\"\r\n}"
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/2:
+    get:
+      tags:
+        - ToDo
+      summary: Get Detail ToDo
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - ToDo
+      summary: Update ToDo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                title: Test Todo 2
+                description: Test Todo Bukan Kaleng-kaleng
+                start_date: '2025-06-16T09:00:00Z'
+                end_date: '2025-06-18T09:00:00Z'
+                status: in_progress
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - ToDo
+      summary: Delete ToDo
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/bulk-delete:
+    delete:
+      tags:
+        - ToDo
+      summary: Bulk Delete ToDo
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/user/profile:
+    get:
+      tags:
+        - Profile
+      summary: Get Profile
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: number
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbHdhZ2UyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMTkzMiwibmJmIjoxNzUwMDAwMTMyLCJpYXQiOjE3NTAwMDAxMzJ9.0X_V3CQoJYkvfM4-TBT6OzILcNwd-RXd3Ja02RRvbFs
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/user/update-profile:
+    put:
+      tags:
+        - Profile
+      summary: Update Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                name: ariel wage
+                username: arielwage2
+                email: arielwage2@gmail.com
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbDEyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMDIyMiwibmJmIjoxNzQ5OTk4NDIyLCJpYXQiOjE3NDk5OTg0MjJ9.O4MJPfuKZKmAHk0kzNseafBPfzmYvHNU5f7EMOerEdo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/trash:
+    get:
+      tags:
+        - Trash
+      summary: Get Trash
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/trash/restore/2:
+    put:
+      tags:
+        - Trash
+      summary: Restore Todo
+      requestBody:
+        content: {}
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/trash/bulk-restore:
+    put:
+      tags:
+        - Trash
+      summary: Bulk Restore Todo
+      requestBody:
+        content: {}
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/trash/permanent-delete/3:
+    delete:
+      tags:
+        - Trash
+      summary: Restore Todo Copy
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/todos/trash/bulk-permanent-delete:
+    delete:
+      tags:
+        - Trash
+      summary: Bulk Delete Todo
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}

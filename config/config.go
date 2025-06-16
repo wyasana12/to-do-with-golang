@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/viper"
@@ -22,6 +23,7 @@ type Config struct {
 }
 
 var ENV Config
+var Validate *validator.Validate
 
 func LoadConfig() {
 	viper.AddConfigPath(".")
@@ -39,4 +41,9 @@ func LoadConfig() {
 	}
 
 	log.Println("Load Server Successfull")
+}
+
+func init() {
+	Validate = validator.New()
+	log.Println("Validator Running Success.")
 }

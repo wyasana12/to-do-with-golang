@@ -3,7 +3,7 @@ package models
 import "time"
 
 type User struct {
-	ID                 int `gorm:"primaryKey"`
+	ID                 uint `gorm:"primaryKey"`
 	Name               string
 	Username           string `gorm:"unique"`
 	Email              string `gorm:"unique"`
@@ -25,20 +25,20 @@ type Register struct {
 }
 
 type Login struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string `json:"username" validate:"omitempty,required_without=Email"`
+	Email    string `json:"email" validate:"omitempty,required_without=Username,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 type Profile struct {
-	ID       int    `json:"id"`
+	ID       uint   `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
 }
 
 type Reset struct {
-	Email       string `json:"email"`
-	Username    string `json:"username"`
-	NewPassword string `json:"new_password"`
+	Email       string `json:"email" validate:"required,email"`
+	Username    string `json:"username" validate:"required"`
+	NewPassword string `json:"new_password" validate:"required,min=6"`
 }

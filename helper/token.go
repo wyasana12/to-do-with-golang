@@ -11,7 +11,7 @@ import (
 )
 
 type MyCustomClass struct {
-	ID       int    `json:"id"`
+	ID       uint   `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Email    string `json:"email"`

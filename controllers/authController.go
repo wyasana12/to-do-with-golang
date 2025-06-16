@@ -7,11 +7,7 @@ import (
 	"to-do-list-go/config"
 	"to-do-list-go/helper"
 	"to-do-list-go/models"
-
-	"github.com/go-playground/validator/v10"
 )
-
-var validate = validator.New()
 
 func Register(w http.ResponseWriter, r *http.Request) {
 	var register models.Register
@@ -23,8 +19,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	if err := validate.Struct(register); err != nil {
-		helper.Response(w, 400, "Validation Not Match: "+err.Error(), nil)
+	if err := config.Validate.Struct(register); err != nil {
+		helper.Response(w, 400, "Validation Error", helper.FormatValidationError(err))
 		return
 	}
 
@@ -107,6 +103,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer r.Body.Close()
+
+	if err := config.Validate.Struct(login); err != nil {
+		helper.Response(w, 400, "Validation Error", helper.FormatValidationError(err))
+		return
+	}
+
 	var user models.User
 	if err := config.DB.First(&user, "email = ? OR username = ?", login.Email, login.Username).Error; err != nil {
 		helper.Response(w, 404, "Wrong Email/Username or Password", nil)
@@ -137,6 +140,13 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&reset); err != nil {
 		helper.Response(w, 500, err.Error(), nil)
+		return
+	}
+
+	defer r.Body.Close()
+
+	if err := config.Validate.Struct(reset); err != nil {
+		helper.Response(w, 400, "Validation Error", helper.FormatValidationError(err))
 		return
 	}
 
