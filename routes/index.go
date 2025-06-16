@@ -1,6 +1,10 @@
 package routes
 
-import "github.com/gorilla/mux"
+import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
 
 func RouteIndex(r *mux.Router) {
 	api := r.PathPrefix("/api").Subrouter()
@@ -8,4 +12,8 @@ func RouteIndex(r *mux.Router) {
 	AuthRoutes(api)
 	UserRoutes(api)
 	TodoRoutes(api)
+
+	api.HandleFunc("/swagger.yaml", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "api.yaml")
+	}).Methods("GET")
 }
