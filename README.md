@@ -100,6 +100,8 @@ Semua rute di bawah /api/user, /api/todos, dan /api/todos/trash memerlukan auten
         GET /api/auth/verify-email?token={token}
     Login Pengguna:
         POST /api/auth/login
+    Reset Password:
+        PUT /api/auth/reset-password
         
 #### Pengguna (/api/user)
     Profil Pengguna:

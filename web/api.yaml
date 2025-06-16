@@ -14,300 +14,637 @@ paths:
     post:
       tags:
         - Autentikasi
-      summary: Register
+      summary: Register Pengguna Baru
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example:
-                name: Wyasana Aji Kusuma Wardana
-                username: wyasana12
-                email: wyasana12@gmail.com
-                password: wyasana123
-                password_confirm: wyasana123
+              properties:
+                name:
+                  type: string
+                  example: Wyasana Aji Kusuma Wardana
+                username:
+                  type: string
+                  example: wyasana12
+                email:
+                  type: string
+                  format: email
+                  example: wyasana12@gmail.com
+                password:
+                  type: string
+                  example: wyasana123
+                password_confirm:
+                  type: string
+                  example: wyasana123
+            example:
+              name: Wyasana Aji Kusuma Wardana
+              username: wyasana12
+              email: wyasana12@gmail.com
+              password: wyasana123
+              password_confirm: wyasana123
       responses:
-        '200':
-          description: Successful response
+        '201':
+          description: Pengguna berhasil didaftarkan
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "success" }
+                  message: { type: string, example: "Success Register User" }
+        '400':
+          description: Error validasi atau password tidak cocok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "failed" }
+                  message: { type: string, example: "Validation Error" }
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "failed" }
+                  message: { type: string, example: "Terjadi kesalahan server" }
+
   /api/auth/login:
     post:
       tags:
         - Autentikasi
-      summary: Login
+      summary: Login Pengguna
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example: "{\r\n    \"username\": \"wyasana12\",\r\n    // \"email\": \"wyasana12@gmail.com\",\r\n    \"password\": \"wyasana123\"\r\n}"
+              properties:
+                username:
+                  type: string
+                  example: wyasana12
+                email:
+                  type: string
+                  format: email
+                  example: wyasana12@gmail.com
+                password:
+                  type: string
+                  example: wyasana123
+            example: # Contoh request body
+              username: wyasana12
+              password: wyasana123
+            # Atau contoh dengan email:
+            # example:
+            #   email: wyasana12@gmail.com
+            #   password: wyasana123
       responses:
-        '200':
-          description: Successful response
+        '201':
+          description: Login berhasil, mengembalikan token JWT
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: "success" }
+                  message: { type: string, example: "Successfully Login" }
+                  data: { type: string, example: "eyJhbGciOiJIUzI1NiI..." } # Contoh token JWT
+        '400':
+          description: Error validasi
+        '401':
+          description: Email belum terverifikasi
+        '404':
+          description: Email/Username atau Password salah
+
   /api/auth/verify-email:
     get:
       tags:
         - Autentikasi
-      summary: Token
+      summary: Verifikasi Email Pengguna
       parameters:
         - name: token
           in: query
+          description: Token verifikasi yang dikirim ke email pengguna
+          required: true
           schema:
             type: string
           example: d0cab6f5-4805-4173-a850-aea193b21d00
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '201':
+          description: Email berhasil diverifikasi
+        '400':
+          description: Token hilang atau kadaluarsa
+        '404':
+          description: Token tidak valid atau email sudah terverifikasi
+
+  /api/auth/reset-password:
+    put:
+      tags:
+        - Autentikasi
+      summary: Reset Kata Sandi Pengguna
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: wyasana12@gmail.com
+                username:
+                  type: string
+                  example: wyasana12
+                new_password:
+                  type: string
+                  example: new_password123
+            example:
+              email: wyasana12@gmail.0com
+              username: wyasana12
+              new_password: new_password123
+      responses:
+        '201':
+          description: Kata sandi berhasil direset
+        '400':
+          description: Error validasi
+        '404':
+          description: Email dan Username tidak cocok
+
   /api/todos:
     get:
       tags:
         - ToDo
-      summary: Get ToDo
+      summary: Mendapatkan Daftar ToDo
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+        - name: status
+          in: query
+          description: Filter berdasarkan status ToDo (not_started, in_progress, completed)
+          required: false
+          schema:
+            type: string
+            enum: [not_started, in_progress, completed]
+        - name: title
+          in: query
+          description: Filter berdasarkan judul ToDo (pencarian sebagian)
+          required: false
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          description: Kolom untuk pengurutan (misal created_at, title, status)
+          required: false
+          schema:
+            type: string
+        - name: order
+          in: query
+          description: Urutan pengurutan (asc atau desc)
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+        - name: page
+          in: query
+          description: Nomor halaman untuk paginasi
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+        - name: limit
+          in: query
+          description: Jumlah item per halaman untuk paginasi
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
       responses:
         '200':
-          description: Successful response
+          description: Daftar ToDo berhasil diambil
           content:
-            application/json: {}
+            application/json: {} # Anda bisa mendefinisikan skema respons di sini
+        '401':
+          description: Tidak terautentikasi
+
     post:
       tags:
         - ToDo
-      summary: Create ToDo
+      summary: Membuat ToDo Baru
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example: "{\r\n    \"title\": \"Test Todo 5\",\r\n    // \"description\": \"Test Todo Bukan Kaleng-kaleng\",\r\n    \"start_date\": \"2025-06-16T09:00:00Z\",\r\n    \"end_date\": \"2025-06-18T09:00:00Z\"\r\n}"
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+              properties:
+                title:
+                  type: string
+                  example: Test Todo 5
+                description:
+                  type: string
+                  example: Test Todo Bukan Kaleng-kaleng
+                start_date:
+                  type: string
+                  format: date-time
+                  example: '2025-06-16T09:00:00Z'
+                end_date:
+                  type: string
+                  format: date-time
+                  example: '2025-06-18T09:00:00Z'
+            example:
+              title: Test Todo 5
+              description: Test Todo Bukan Kaleng-kaleng
+              start_date: '2025-06-16T09:00:00Z'
+              end_date: '2025-06-18T09:00:00Z'
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/todos/2:
+        '201':
+          description: ToDo berhasil dibuat
+        '400':
+          description: Error validasi atau input tidak valid
+        '401':
+          description: Tidak terautentikasi
+
+  /api/todos/{id}:
+    parameters:
+      - name: id
+        in: path
+        description: ID ToDo
+        required: true
+        schema:
+          type: integer
+          format: uint
+        example: 2
     get:
       tags:
         - ToDo
-      summary: Get Detail ToDo
+      summary: Mendapatkan Detail ToDo
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
         '200':
-          description: Successful response
-          content:
-            application/json: {}
+          description: Detail ToDo berhasil diambil
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo tidak ditemukan atau ID tidak valid
+
     put:
       tags:
         - ToDo
-      summary: Update ToDo
+      summary: Memperbarui ToDo
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example:
-                title: Test Todo 2
-                description: Test Todo Bukan Kaleng-kaleng
-                start_date: '2025-06-16T09:00:00Z'
-                end_date: '2025-06-18T09:00:00Z'
-                status: in_progress
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+              properties:
+                title:
+                  type: string
+                  example: Test Todo Update
+                description:
+                  type: string
+                  example: Deskripsi ToDo yang diperbarui
+                start_date:
+                  type: string
+                  format: date-time
+                  example: '2025-06-16T09:00:00Z'
+                end_date:
+                  type: string
+                  format: date-time
+                  example: '2025-06-18T09:00:00Z'
+                status:
+                  type: string
+                  enum: [not_started, in_progress, completed]
+                  example: in_progress
+            example:
+              title: Test Todo 2
+              description: Test Todo Bukan Kaleng-kaleng
+              start_date: '2025-06-16T09:00:00Z'
+              end_date: '2025-06-18T09:00:00Z'
+              status: in_progress
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: ToDo berhasil diperbarui
+        '400':
+          description: Error validasi atau input tidak valid
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo tidak ditemukan atau ID tidak valid
+
     delete:
       tags:
         - ToDo
-      summary: Delete ToDo
+      summary: Menghapus ToDo (Soft Delete)
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: ToDo berhasil dihapus (soft delete)
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo tidak ditemukan atau ID tidak valid
+
   /api/todos/bulk-delete:
     delete:
       tags:
         - ToDo
-      summary: Bulk Delete ToDo
+      summary: Menghapus ToDo Massal (Soft Delete)
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/user/profile:
-    get:
-      tags:
-        - Profile
-      summary: Get Profile
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: number
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbHdhZ2UyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMTkzMiwibmJmIjoxNzUwMDAwMTMyLCJpYXQiOjE3NTAwMDAxMzJ9.0X_V3CQoJYkvfM4-TBT6OzILcNwd-RXd3Ja02RRvbFs
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/user/update-profile:
-    put:
-      tags:
-        - Profile
-      summary: Update Profile
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example:
-                name: ariel wage
-                username: arielwage2
-                email: arielwage2@gmail.com
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint
+                  minItems: 1
+            example:
+              ids: [1, 2, 3]
+      responses:
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: Penghapusan massal berhasil (soft delete)
+        '400':
+          description: Input tidak valid atau daftar ID kosong
+        '401':
+          description: Tidak terautentikasi
+        '500':
+          description: Internal Server Error
+
+  /api/user/profile:
+    get:
+      tags:
+        - Profile
+      summary: Mendapatkan Profil Pengguna
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
-            type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbDEyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMDIyMiwibmJmIjoxNzQ5OTk4NDIyLCJpYXQiOjE3NDk5OTg0MjJ9.O4MJPfuKZKmAHk0kzNseafBPfzmYvHNU5f7EMOerEdo
+            type: string # Diperbaiki dari 'number' menjadi 'string'
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbHdhZ2UyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMTkzMiwibmJmIjoxNzUwMDAwMTMyLCJpYXQiOjE3NTAwMDAxMzJ9.0X_V3CQoJYkvfM4-TBT6OzILcNwd-RXd3Ja02RRvbFs
       responses:
         '200':
-          description: Successful response
-          content:
-            application/json: {}
+          description: Profil pengguna berhasil diambil
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Pengguna tidak ditemukan
+
+  /api/user/update-profile:
+    put:
+      tags:
+        - Profile
+      summary: Memperbarui Profil Pengguna
+      parameters:
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbDEyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMDIyMiwibmJmIjoxNzQ5OTk4NDIyLCJpYXQiOjE3NDk5OTg0MjJ9.O4MJPfuKZKmAHk0kzNseafBPfzmYvHNU5f7EMOerEdo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: ariel wage
+                username:
+                  type: string
+                  example: arielwage2
+                email:
+                  type: string
+                  format: email
+                  example: arielwage2@gmail.com
+            example:
+              name: ariel wage
+              username: arielwage2
+              email: arielwage2@gmail.com
+      responses:
+        '201': # Diperbarui: 200 -> 201 Created (sesuai kode Go yang mengembalikan status 201)
+          description: Profil berhasil diperbarui
+        '400':
+          description: Error validasi atau input tidak valid
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Pengguna tidak ditemukan
+
   /api/todos/trash:
     get:
       tags:
         - Trash
-      summary: Get Trash
+      summary: Mendapatkan Daftar ToDo di Tempat Sampah
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
         '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/todos/trash/restore/2:
+          description: Daftar ToDo di tempat sampah berhasil diambil
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Tidak ada ToDo di tempat sampah yang ditemukan
+
+  /api/todos/trash/restore/{id}:
     put:
       tags:
         - Trash
-      summary: Restore Todo
-      requestBody:
-        content: {}
+      summary: Memulihkan ToDo dari Tempat Sampah
       parameters:
+        - name: id
+          in: path
+          description: ID ToDo yang akan dipulihkan
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 2
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '200': # Tetap 200 OK karena Go code mengembalikan payload data (object todo)
+          description: ToDo berhasil dipulihkan
+        '400':
+          description: ToDo tidak dihapus
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo tidak ditemukan
+
   /api/todos/trash/bulk-restore:
     put:
       tags:
         - Trash
-      summary: Bulk Restore Todo
-      requestBody:
-        content: {}
+      summary: Memulihkan ToDo Massal dari Tempat Sampah
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint
+                  minItems: 1
+            example:
+              ids: [1, 2, 3]
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/todos/trash/permanent-delete/3:
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: ToDo berhasil dipulihkan secara massal
+        '400':
+          description: Input tidak valid atau daftar ID kosong
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Tidak ada ToDo yang cocok di tempat sampah ditemukan
+
+  /api/todos/trash/permanent-delete/{id}:
     delete:
       tags:
         - Trash
-      summary: Restore Todo Copy
+      summary: Menghapus Permanen ToDo dari Tempat Sampah
       parameters:
+        - name: id
+          in: path
+          description: ID ToDo yang akan dihapus permanen
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 3
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: ToDo berhasil dihapus secara permanen
+        '401':
+          description: Tidak terautentikasi
+        '500':
+          description: Internal Server Error
+
   /api/todos/trash/bulk-permanent-delete:
     delete:
       tags:
         - Trash
-      summary: Bulk Delete Todo
+      summary: Menghapus Permanen ToDo Massal dari Tempat Sampah
       parameters:
         - name: Authorization
           in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
           schema:
             type: string
-          example: >-
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJelmFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                    format: uint
+                  minItems: 1
+            example:
+              ids: [1, 2, 3]
       responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+          description: Penghapusan permanen massal berhasil
+        '400':
+          description: Input tidak valid atau daftar ID kosong
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: Tidak ada ToDo yang cocok di tempat sampah ditemukan
+        '500':
+          description: Internal Server Error
