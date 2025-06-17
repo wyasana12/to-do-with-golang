@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"to-do-list-go/config"
 	"to-do-list-go/routes"
+	"to-do-list-go/schedular"
 
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -17,6 +18,8 @@ func main() {
 
 	r := mux.NewRouter()
 	routes.RouteIndex(r)
+
+	schedular.StartNotificationSchedular()
 	// r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 	// 	path, _ := route.GetPathTemplate()
 	// 	methods, _ := route.GetMethods()

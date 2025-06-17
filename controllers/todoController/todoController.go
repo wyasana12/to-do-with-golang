@@ -185,11 +185,28 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	oldEndDate := todo.EndDate
+	oldStatus := todo.Status
+
 	todo.Title = updatedData.Title
 	todo.Description = updatedData.Description
 	todo.Status = updatedData.Status
 	todo.StartDate = updatedData.StartDate
 	todo.EndDate = updatedData.EndDate
+
+	if oldEndDate != nil && updatedData.EndDate != nil && !updatedData.EndDate.Equal(*oldEndDate) {
+		if now := time.Now(); updatedData.EndDate.After(now) {
+			todo.IsD1Notified = false
+			todo.IsLessThan1HrNotified = false
+			todo.IsOverdueDeadline = false
+		}
+	}
+
+	if oldStatus == models.StatusCompleted && (updatedData.Status == models.StatusNotStarted || updatedData.Status == models.StatusInProgress) {
+		todo.IsD1Notified = false
+		todo.IsLessThan1HrNotified = false
+		todo.IsOverdueDeadline = false
+	}
 
 	if err := config.DB.Save(&todo).Error; err != nil {
 		helper.Response(w, 500, err.Error(), nil)
