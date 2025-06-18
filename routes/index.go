@@ -10,7 +10,7 @@ import (
 func RouteIndex(r *mux.Router) {
 	api := r.PathPrefix("/api").Subrouter()
 
-	r.Use(middleware.CORSmiddleware)
+	api.Use(middleware.CORSmiddleware)
 
 	AuthRoutes(api)
 	UserRoutes(api)
