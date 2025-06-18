@@ -12,8 +12,10 @@ type User struct {
 	VerificationToken  string     `gorm:"index"`
 	ResetPasswordToken string     `gorm:"index"`
 	ResetTokenExpiry   *time.Time `gorm:"default:null"`
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	// OTPCode            string     `gorm:"type:varchar(6);index"`
+	// OTPExpiry          *time.Time `gorm:"default:null"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Register struct {

@@ -34,25 +34,27 @@ type Todo struct {
 	IsD1Notified          bool           `gorm:"default:false" json:"is_d1_notified"`
 	IsLessThan1HrNotified bool           `gorm:"default:false" json:"is_less_than_1hr_notified"`
 	IsOverdueDeadline     bool           `gorm:"default:false" json:"is_overdue_notified"`
+	Attachments           []Attachment   `gorm:"foreignKey:TodoID" json:"attachments"`
 	CreatedAt             time.Time      `json:"created_at"`
 	UpdatedAt             time.Time      `json:"updated_at"`
 	DeletedAt             gorm.DeletedAt `gorm:"index"`
 }
 
 type TodoResponse struct {
-	ID                    uint       `json:"id"`
-	Title                 string     `json:"title"`
-	UserID                uint       `json:"-"`
-	User                  Profile    `json:"user"`
-	Description           string     `json:"description"`
-	Status                TodoStatus `json:"status"`
-	StartDate             time.Time  `json:"start_date"`
-	EndDate               time.Time  `json:"end_date"`
-	IsD1Notified          bool       `json:"is_d1_notified"`
-	IsLessThan1HrNotified bool       `json:"is_less_than_1hr_notified"`
-	IsOverdueDeadline     bool       `json:"is_overdue_notified"`
-	CreatedAt             time.Time  `json:"created_at"`
-	UpdatedAt             time.Time  `json:"updated_at"`
+	ID                    uint                 `json:"id"`
+	Title                 string               `json:"title"`
+	UserID                uint                 `json:"-"`
+	User                  Profile              `json:"user"`
+	Description           string               `json:"description"`
+	Status                TodoStatus           `json:"status"`
+	StartDate             time.Time            `json:"start_date"`
+	EndDate               time.Time            `json:"end_date"`
+	IsD1Notified          bool                 `json:"is_d1_notified"`
+	IsLessThan1HrNotified bool                 `json:"is_less_than_1hr_notified"`
+	IsOverdueDeadline     bool                 `json:"is_overdue_notified"`
+	Attachments           []AttachmentResponse `json:"attachments"`
+	CreatedAt             time.Time            `json:"created_at"`
+	UpdatedAt             time.Time            `json:"updated_at"`
 }
 
 type UpdateTodoRequest struct {

@@ -14,6 +14,7 @@ func TodoRoutes(r *mux.Router) {
 	router.HandleFunc("", todocontroller.Create).Methods("POST")
 	router.HandleFunc("/bulk-delete", todocontroller.BulkDestroy).Methods("DELETE")
 
+	AttachmentRoutes(router)
 	TrashRoutes(router)
 
 	router.HandleFunc("/{id}", todocontroller.Detail).Methods("GET")

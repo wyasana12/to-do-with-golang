@@ -128,7 +128,7 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 
 	var todo models.Todo
 
-	if err := config.DB.Preload("User").Where("id = ? AND user_id = ?", id, user.ID).First(&todo).Error; err != nil {
+	if err := config.DB.Preload("User").Preload("Attachments").Where("id = ? AND user_id = ?", id, user.ID).First(&todo).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			helper.Response(w, 404, "ID Not Found or Invalid User Id", nil)
 			return
@@ -136,6 +136,19 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 
 		helper.Response(w, 500, err.Error(), nil)
 		return
+	}
+
+	var attachmentResponses []models.AttachmentResponse
+	for _, att := range todo.Attachments {
+		attachmentResponses = append(attachmentResponses, models.AttachmentResponse{
+			ID:        att.ID,
+			FileName:  att.FileName,
+			URL:       att.URL,
+			MimeType:  att.MimeType,
+			Type:      att.Type,
+			CreatedAt: att.CreatedAt,
+			UpdatedAt: att.UpdatedAt,
+		})
 	}
 
 	todoResponse := models.TodoResponse{
@@ -148,6 +161,7 @@ func Detail(w http.ResponseWriter, r *http.Request) {
 		EndDate:     derefTime(todo.EndDate),
 		CreatedAt:   todo.CreatedAt,
 		UpdatedAt:   todo.UpdatedAt,
+		Attachments: attachmentResponses,
 	}
 
 	helper.Response(w, 200, "Detail ToDo", todoResponse)

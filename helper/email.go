@@ -51,7 +51,7 @@ func SendTodoReminderEmail(to string, todo *models.Todo, reminderType string) er
 
 	err := smtp.SendMail(host+":"+port, auth, from, []string{to}, msg)
 	if err != nil {
-		return fmt.Errorf("Failed to send reminder email: %w", err)
+		return fmt.Errorf("failed to send reminder email: %w", err)
 	}
 
 	return nil

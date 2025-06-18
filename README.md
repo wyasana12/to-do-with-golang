@@ -44,7 +44,7 @@ cd to-do-list-go
 
 #### 2. Instalasi Despendensi
 ```bash
-git mod tidy
+go mod tidy
 ```
 
 #### 3. Konfigurasi Basis Data
