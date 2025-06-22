@@ -12,5 +12,6 @@ func AuthRoutes(r *mux.Router) {
 	router.HandleFunc("/register", controllers.Register).Methods("POST", "OPTIONS")
 	router.HandleFunc("/verify-email", controllers.VerifyEmail).Methods("GET", "OPTIONS")
 	router.HandleFunc("/login", controllers.Login).Methods("POST", "OPTIONS")
-	router.HandleFunc("/reset-password", controllers.ResetPassword).Methods("PUT", "OPTIONS")
+	router.HandleFunc("/forgot-password", controllers.RequestResetPassword).Methods("POST", "OPTIONS")
+	router.HandleFunc("/reset-password", controllers.ResetPassword).Methods("POST", "OPTIONS")
 }

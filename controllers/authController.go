@@ -135,6 +135,44 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	helper.Response(w, 201, "Successfully Login", token)
 }
 
+func RequestResetPassword(w http.ResponseWriter, r *http.Request) {
+	var request models.RequestResetPassword
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		helper.Response(w, 500, err.Error(), nil)
+		return
+	}
+
+	defer r.Body.Close()
+
+	if err := config.Validate.Struct(request); err != nil {
+		helper.Response(w, 400, "Validation Error", helper.FormatValidationError(err))
+		return
+	}
+
+	var user models.User
+
+	if err := config.DB.Where("email = ?", request.Email).First(&user).Error; err != nil {
+		helper.Response(w, 404, "Email Is Not Valid", nil)
+		return
+	}
+
+	token := helper.GenerateOTPToken(4)
+
+	tokenExpired := time.Now().Add(5 * time.Minute)
+	user.OTPCode = token
+	user.OTPExpiry = &tokenExpired
+
+	config.DB.Save(&user)
+
+	if err := helper.SendResetPasswordEmail(user.Email, token); err != nil {
+		helper.Response(w, 500, err.Error(), nil)
+		return
+	}
+
+	helper.Response(w, 200, "If Your Account Exists, You Will Receive A Password Reset Code", nil)
+}
+
 func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	var reset models.Reset
 
@@ -150,9 +188,24 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if reset.NewPassword != reset.PasswordConfirm {
+		helper.Response(w, 400, "Password Not Match", nil)
+		return
+	}
+
 	var user models.User
-	if err := config.DB.Where("email = ? AND username = ?", reset.Email, reset.Username).First(&user).Error; err != nil {
-		helper.Response(w, 404, "Wrong Email And Username", nil)
+	if err := config.DB.Where("email = ?", reset.Email).First(&user).Error; err != nil {
+		helper.Response(w, 404, "Wrong Email or OTP Token", nil)
+		return
+	}
+
+	if user.OTPCode == "" || user.OTPCode != reset.OTPCode {
+		helper.Response(w, 400, "Invalid OTP Token", nil)
+		return
+	}
+
+	if user.OTPExpiry == nil || time.Now().After(*user.OTPExpiry) {
+		helper.Response(w, 400, "Expired OTP Token", nil)
 		return
 	}
 
@@ -164,6 +217,8 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user.Password = hashed
+	user.OTPCode = ""
+	user.OTPExpiry = nil
 	config.DB.Save(&user)
 
 	helper.Response(w, 201, "Success Reset Password", nil)

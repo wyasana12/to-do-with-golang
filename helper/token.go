@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 	"to-do-list-go/config"
 	"to-do-list-go/models"
@@ -18,9 +19,43 @@ type MyCustomClass struct {
 	jwt.RegisteredClaims
 }
 
+type ResetPasswordClass struct {
+	UserID uint `json:"id"`
+	jwt.RegisteredClaims
+}
+
 func GenerateVerificationToken(length int) string {
 	return uuid.NewString()
 }
+
+func GenerateOTPToken(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = byte(rand.Intn(10) + '0')
+	}
+
+	return string(b)
+}
+
+// func GenerateResetPasswordToken(userID uint) (string, error) {
+// 	claims := ResetPasswordClass{
+// 		UserID: userID,
+// 		RegisteredClaims: jwt.RegisteredClaims{
+// 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+// 			IssuedAt:  jwt.NewNumericDate(time.Now()),
+// 			NotBefore: jwt.NewNumericDate(time.Now()),
+// 		},
+// 	}
+
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// 	ss, err := token.SignedString([]byte(config.ENV.JWT_SECRET_KEY))
+// 	if err != nil {
+// 		return "", err
+// 	}
+
+// 	return ss, nil
+// }
 
 func CreateToken(user *models.User) (string, error) {
 	claims := MyCustomClass{
@@ -59,4 +94,23 @@ func ValidateToken(tokenString string) (any, error) {
 	}
 
 	return claims, nil
+}
+
+func ValidateResetPasswordToken(tokenString string) (any, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &ResetPasswordClass{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(config.ENV.JWT_SECRET_KEY), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(*ResetPasswordClass); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid or expired reset token")
 }

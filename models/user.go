@@ -12,10 +12,10 @@ type User struct {
 	VerificationToken  string     `gorm:"index"`
 	ResetPasswordToken string     `gorm:"index"`
 	ResetTokenExpiry   *time.Time `gorm:"default:null"`
-	// OTPCode            string     `gorm:"type:varchar(6);index"`
-	// OTPExpiry          *time.Time `gorm:"default:null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	OTPCode            string     `gorm:"index"`
+	OTPExpiry          *time.Time `gorm:"default:null"`
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 type Register struct {
@@ -39,8 +39,13 @@ type Profile struct {
 	Email    string `json:"email"`
 }
 
+type RequestResetPassword struct {
+	Email string `json:"email" validate:"required,email"`
+}
+
 type Reset struct {
-	Email       string `json:"email" validate:"required,email"`
-	Username    string `json:"username" validate:"required"`
-	NewPassword string `json:"new_password" validate:"required,min=6"`
+	Email           string `json:"email" validate:"required,email"`
+	OTPCode         string `json:"otp_code" validate:"required,len=4"`
+	NewPassword     string `json:"new_password" validate:"required,min=6"`
+	PasswordConfirm string `json:"password_confirm" validate:"required"`
 }

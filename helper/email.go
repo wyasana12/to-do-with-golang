@@ -24,6 +24,22 @@ func SendVerificationEmail(to string, token string) error {
 	return err
 }
 
+func SendResetPasswordEmail(to string, token string) error {
+	from := config.ENV.SMTP_EMAIL
+	password := config.ENV.SMTP_PASSWORD
+	host := config.ENV.SMTP_HOST
+	port := config.ENV.SMTP_PORT
+
+	auth := smtp.PlainAuth("", from, password, host)
+
+	subject := "Subject: Your Reset Password Token \n"
+	body := fmt.Sprintf("Your Password Reset Is: %s\n\nThis Code Will Be Expired In Five Minutes. Do Not Share This Code With Anyone", token)
+	msg := []byte(subject + "\n" + body)
+
+	err := smtp.SendMail(host+":"+port, auth, from, []string{to}, msg)
+	return err
+}
+
 func SendTodoReminderEmail(to string, todo *models.Todo, reminderType string) error {
 	from := config.ENV.SMTP_EMAIL
 	password := config.ENV.SMTP_PASSWORD
