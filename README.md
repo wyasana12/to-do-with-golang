@@ -1,22 +1,27 @@
 # To-Do-List App Berbasis Rest API dan GoLang
 
-Ini adalah RESTful API untuk mengelola daftar tugas, dibangun menggunakan bahasa pemrograman Go. API ini mencakup fitur autentikasi pengguna dan operasi CRUD (Create, Read, Update, Delete) untuk item-item daftar tugas, serta fungsionalitas keranjang sampah (trash) untuk pemulihan. Aplikasi ini juga dilengkapi dengan integrasi Swagger UI untuk dokumentasi API interaktif. Password hash yang digunakan dalam project tersebut adalah algoritma bcrypt.
+Ini adalah RESTful API untuk mengelola daftar tugas, dibangun menggunakan bahasa pemrograman Go. API ini mencakup fitur autentikasi pengguna dan operasi CRUD (Create, Read, Update, Delete) untuk item-item daftar tugas, Melakukan tambah, download, dan delete untuk attachment di setiap tugas, serta fungsionalitas keranjang sampah (trash) untuk pemulihan. Aplikasi ini juga dilengkapi dengan integrasi Swagger UI untuk dokumentasi API interaktif. Password hash yang digunakan dalam project tersebut adalah algoritma bcrypt.
 
 ## Fitur
 #### Manajemen Pengguna
-- Registrasi Pengguna.
-- Verifikasi Email.
-- Login Pengguna (menghasilkan token JWT).
-- Reset Kata Sandi.
-- Pengambilan dan Pembaruan Profil Pengguna.
+- Registrasi pengguna.
+- Verifikasi email.
+- Login pengguna (menghasilkan token JWT).
+- Reset kata sandi.
+- Pengambilan dan pembaruan profil pengguna.
  
-#### Manajemen Item Daftar Tugas (Membutuhkan Autentikas)
-- Membuat Item Daftar Tugas Baru.
+#### Manajemen Item Daftar Tugas (Membutuhkan Autentikasi)
+- Membuat item daftar tugas baru.
 - Melihat semua item daftar tugas untuk seorang pengguna.
 - Melihat detail item daftar tugas tertentu.
 - Memperbarui item daftar tugas yang sudah ada.
 - Menghapus item daftar tugas (soft delete ke tempat sampah).
 - Hapus massal (bulk delete) item daftar tugas.
+
+#### Manajemen Attachment Setiap Tugas (Membutuhkan Autentikasi)
+- Membuat attachment di setiap tugas.
+- Melakukan download attachment.
+- Menghapus attachment untuk setiap tugas.
 
 #### Manajemen Keranjang Sampah (Membutuhkan Autentikasi)
 - Melihat item daftar tugas yang telah dihapus (di tempat sampah).
@@ -122,6 +127,14 @@ Semua rute di bawah /api/user, /api/todos, dan /api/todos/trash memerlukan auten
         DELETE /api/todos/{id}
     Hapus Tugas Massal (soft delete):
         DELETE /api/todos/bulk-delete
+
+#### Attachment (/api/todos/{id}/attachment)
+    Tambah Attachment:
+        POST /api/todos/{id}/attachment
+    Download Attachment:
+        GET /api/todos/{id}/attachment/{attachment_id}/download
+    Delete Attachment:
+        DELETE /api/todos/{id}/attachment/{attachment_id}
 
 #### Keranjang Sampah (/api/todos/trash)
     Daftar Tugas Di Tempat Sampah:
