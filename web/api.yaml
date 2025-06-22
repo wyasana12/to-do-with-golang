@@ -4,11 +4,19 @@ info:
   version: 1.0.0
 servers:
   - url: http://localhost:8080
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []
 tags:
   - name: Autentikasi
   - name: ToDo
   - name: Profile
   - name: Trash
+  - name: Attachment
 paths:
   /api/auth/register:
     post:
@@ -141,8 +149,40 @@ paths:
         '404':
           description: Token tidak valid atau email sudah terverifikasi
 
+  /api/auth/forgot-password:
+    post:
+      tags:
+        - Autentikasi
+      summary: Forgot Password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: wyasana12@gmail.com
+            example:
+              email: wyasana12@gmail.com
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTA2MDQ0NzksIm5iZiI6MTc1MDYwMjY3OSwiaWF0IjoxNzUwNjAyNjc5fQ.F7rydif5lGytA8KJ0olvaYVxNARn0X7sjX-6_lOeQO0
+      responses:
+        '200':
+          description: Link reset password telah dikirim ke email
+        '400':
+          description: Error validasi
+        '404':
+          description: Email tidak ditemukan
+
   /api/auth/reset-password:
-    put:
+    POST: # Kept PUT from original, changed request body
       tags:
         - Autentikasi
       summary: Reset Kata Sandi Pengguna
@@ -157,23 +197,33 @@ paths:
                   type: string
                   format: email
                   example: wyasana12@gmail.com
-                username:
+                otp_code:
                   type: string
-                  example: wyasana12
+                  example: '0700'
                 new_password:
                   type: string
                   example: new_password123
+                password_confirm:
+                  type: string
+                  example: new_password123
             example:
-              email: wyasana12@gmail.0com
-              username: wyasana12
+              email: wyasana12@gmail.com
+              otp_code: '0700'
               new_password: new_password123
+              password_confirm: new_password123
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTA2MDQ0NzksIm5iZiI6MTc1MDYwMjY3OSwiaWF0IjoxNzUwNjAyNjc5fQ.F7rydif5lGytA8KJ0olvaYVxNARn0X7sjX-6_lOeQO0
       responses:
         '201':
           description: Kata sandi berhasil direset
         '400':
-          description: Error validasi
+          description: Error validasi atau OTP tidak cocok
         '404':
-          description: Email dan Username tidak cocok
+          description: Email tidak ditemukan
 
   /api/todos:
     get:
@@ -234,7 +284,7 @@ paths:
         '200':
           description: Daftar ToDo berhasil diambil
           content:
-            application/json: {} # Anda bisa mendefinisikan skema respons di sini
+            application/json: {}
         '401':
           description: Tidak terautentikasi
 
@@ -358,7 +408,7 @@ paths:
               end_date: '2025-06-18T09:00:00Z'
               status: in_progress
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: ToDo berhasil diperbarui
         '400':
           description: Error validasi atau input tidak valid
@@ -380,7 +430,7 @@ paths:
             type: string
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: ToDo berhasil dihapus (soft delete)
         '401':
           description: Tidak terautentikasi
@@ -416,7 +466,7 @@ paths:
             example:
               ids: [1, 2, 3]
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: Penghapusan massal berhasil (soft delete)
         '400':
           description: Input tidak valid atau daftar ID kosong
@@ -436,7 +486,7 @@ paths:
           description: Token autentikasi JWT (Bearer token)
           required: true
           schema:
-            type: string # Diperbaiki dari 'number' menjadi 'string'
+            type: string
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTQsIm5hbWUiOiJhcmllbCB3YWdlIiwidXNlcm5hbWUiOiJhcmllbHdhZ2UyIiwiZW1haWwiOiJhcmllbHdhZ2UyQGdtYWlsLmNvbSIsImV4cCI6MTc1MDAwMTkzMiwibmJmIjoxNzUwMDAwMTMyLCJpYXQiOjE3NTAwMDAxMzJ9.0X_V3CQoJYkvfM4-TBT6OzILcNwd-RXd3Ja02RRvbFs
       responses:
         '200':
@@ -481,7 +531,7 @@ paths:
               username: arielwage2
               email: arielwage2@gmail.com
       responses:
-        '201': # Diperbarui: 200 -> 201 Created (sesuai kode Go yang mengembalikan status 201)
+        '201':
           description: Profil berhasil diperbarui
         '400':
           description: Error validasi atau input tidak valid
@@ -533,7 +583,7 @@ paths:
             type: string
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '200': # Tetap 200 OK karena Go code mengembalikan payload data (object todo)
+        '200':
           description: ToDo berhasil dipulihkan
         '400':
           description: ToDo tidak dihapus
@@ -571,7 +621,7 @@ paths:
             example:
               ids: [1, 2, 3]
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: ToDo berhasil dipulihkan secara massal
         '400':
           description: Input tidak valid atau daftar ID kosong
@@ -602,7 +652,7 @@ paths:
             type: string
           example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: ToDo berhasil dihapus secara permanen
         '401':
           description: Tidak terautentikasi
@@ -621,7 +671,7 @@ paths:
           required: true
           schema:
             type: string
-          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJelmFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAwNzM1NDgsIm5iZiI6MTc1MDA3MTc0OCwiaWF0IjoxNzUwMDcxNzQ4fQ.F9DE4Tlyicxv3ipCAunBjmzTUcuiADOaFpJ3ajZLCdg
       requestBody:
         required: true
         content:
@@ -638,7 +688,7 @@ paths:
             example:
               ids: [1, 2, 3]
       responses:
-        '204': # Diperbarui: 200 -> 204 No Content (karena Go code mengembalikan payload nil)
+        '204':
           description: Penghapusan permanen massal berhasil
         '400':
           description: Input tidak valid atau daftar ID kosong
@@ -646,5 +696,125 @@ paths:
           description: Tidak terautentikasi
         '404':
           description: Tidak ada ToDo yang cocok di tempat sampah ditemukan
+        '500':
+          description: Internal Server Error
+
+  /api/todos/{id}/attachment:
+    post:
+      tags:
+        - Attachment
+      summary: Upload File Attachment
+      parameters:
+        - name: id
+          in: path
+          description: ID ToDo
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 2
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAxNTc2NTEsIm5iZiI6MTc1MDE1NTg1MSwiaWF0IjoxNzUwMTU1ODUxfQ.ZBo3ZOpLwj8pRP8ulppoZiI5ogmLb_4wCruwvYCWYCY
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: File attachment berhasil diunggah
+        '400':
+          description: Input tidak valid atau file tidak ditemukan
+        '401':
+          description: Tidak terautentikasi
+
+  /api/todos/{id}/attachment/{attachmentId}/download:
+    get:
+      tags:
+        - Attachment
+      summary: Download Attachment
+      parameters:
+        - name: id
+          in: path
+          description: ID ToDo
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 2
+        - name: attachmentId
+          in: path
+          description: ID Attachment
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 5
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAxNTk5NzIsIm5iZiI6MTc1MDE1ODE3MiwiaWF0IjoxNzUwMTU4MTcyfQ.4SD2V61tkh0bqvsvczTFpmQtpSgGiyxycR_2sdAGEDQ
+      responses:
+        '200':
+          description: Attachment berhasil diunduh
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo atau Attachment tidak ditemukan
+
+  /api/todos/{id}/attachment/{attachmentId}:
+    delete:
+      tags:
+        - Attachment
+      summary: Delete Attachment
+      parameters:
+        - name: id
+          in: path
+          description: ID ToDo
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 2
+        - name: attachmentId
+          in: path
+          description: ID Attachment
+          required: true
+          schema:
+            type: integer
+            format: uint
+          example: 4
+        - name: Authorization
+          in: header
+          description: Token autentikasi JWT (Bearer token)
+          required: true
+          schema:
+            type: string
+          example: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6Ild5YXNhbmEgQWppIEt1c3VtYSBXYXJkYW5hIiwidXNlcm5hbWUiOiJ3eWFzYW5hMTIiLCJlbWFpbCI6Ind5YXNhbmExMkBnbWFpbC5jb20iLCJleHAiOjE3NTAxNTk5NzIsIm5iZiI6MTc1MDE1ODE3MiwiaWF0IjoxNzUwMTU4MTcyfQ.4SD2V61tkh0bqvsvczTFpmQtpSgGiyxycR_2sdAGEDQ
+      responses:
+        '204':
+          description: Attachment berhasil dihapus
+        '401':
+          description: Tidak terautentikasi
+        '404':
+          description: ToDo atau Attachment tidak ditemukan
         '500':
           description: Internal Server Error
