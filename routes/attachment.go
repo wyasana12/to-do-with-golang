@@ -9,7 +9,7 @@ import (
 func AttachmentRoutes(r *mux.Router) {
 	router := r.PathPrefix("/{id}").Subrouter()
 
-	router.HandleFunc("/attachment", attachmentcontroller.Upload).Methods("POST")
-	router.HandleFunc("/attachment/{attachment_id}/download", attachmentcontroller.Download).Methods("GET")
-	router.HandleFunc("/attachment/{attachment_id}", attachmentcontroller.Delete).Methods("DELETE")
+	router.HandleFunc("/attachment", attachmentcontroller.Upload).Methods("POST", "OPTIONS")
+	router.HandleFunc("/attachment/{attachment_id}/download", attachmentcontroller.Download).Methods("GET", "OPTIONS")
+	router.HandleFunc("/attachment/{attachment_id}", attachmentcontroller.Delete).Methods("DELETE", "OPTIONS")
 }

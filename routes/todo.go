@@ -10,14 +10,14 @@ import (
 func TodoRoutes(r *mux.Router) {
 	router := r.PathPrefix("/todos").Subrouter()
 	router.Use(middleware.Auth)
-	router.HandleFunc("", todocontroller.Index).Methods("GET")
-	router.HandleFunc("", todocontroller.Create).Methods("POST")
-	router.HandleFunc("/bulk-delete", todocontroller.BulkDestroy).Methods("DELETE")
+	router.HandleFunc("", todocontroller.Index).Methods("GET", "OPTIONS")
+	router.HandleFunc("", todocontroller.Create).Methods("POST", "OPTIONS")
+	router.HandleFunc("/bulk-delete", todocontroller.BulkDestroy).Methods("DELETE", "OPTIONS")
 
 	AttachmentRoutes(router)
 	TrashRoutes(router)
 
-	router.HandleFunc("/{id}", todocontroller.Detail).Methods("GET")
-	router.HandleFunc("/{id}", todocontroller.Update).Methods("PUT")
-	router.HandleFunc("/{id}", todocontroller.Destroy).Methods("DELETE")
+	router.HandleFunc("/{id}", todocontroller.Detail).Methods("GET", "OPTIONS")
+	router.HandleFunc("/{id}", todocontroller.Update).Methods("PUT", "OPTIONS")
+	router.HandleFunc("/{id}", todocontroller.Destroy).Methods("DELETE", "OPTIONS")
 }
