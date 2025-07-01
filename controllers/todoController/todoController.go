@@ -51,6 +51,12 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	query = query.Order(sortBy + " " + order)
 
 	//pagination
+	var totalRecords int64
+	if err := query.Count(&totalRecords).Error; err != nil {
+		helper.Response(w, 500, err.Error(), nil)
+		return
+	}
+
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 
@@ -63,6 +69,11 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	offset := (page - 1) * limit
+
+	var totalPages int
+	if totalRecords > 0 {
+		totalPages = int((totalRecords + int64(limit) - 1) / int64(limit))
+	}
 
 	var todo []models.Todo
 
@@ -91,7 +102,19 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	helper.Response(w, 200, "List To-Do", &todoResponse)
+	paginationData := map[string]interface{}{
+		"page":          page,
+		"limit":         limit,
+		"total_records": totalRecords,
+		"total_pages":   totalPages,
+	}
+
+	finalResponse := map[string]interface{}{
+		"data":       todoResponse,
+		"pagination": paginationData,
+	}
+
+	helper.Response(w, 200, "List To-Do", finalResponse)
 }
 
 func Create(w http.ResponseWriter, r *http.Request) {
