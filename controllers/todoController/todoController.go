@@ -35,28 +35,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		query = query.Where("title ILIKE ?", "%"+title+"%")
 	}
 
-	//sorting
-	sortBy := r.URL.Query().Get("sort_by")
-
-	if sortBy == "" {
-		sortBy = "created_at"
-	}
-
-	order := r.URL.Query().Get("order")
-
-	if order != "asc" {
-		order = "desc"
-	}
-
-	query = query.Order(sortBy + " " + order)
-
-	//pagination
+	//total records
 	var totalRecords int64
 	if err := query.Count(&totalRecords).Error; err != nil {
 		helper.Response(w, 500, err.Error(), nil)
 		return
 	}
 
+	//pagination
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 
@@ -74,6 +60,21 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	if totalRecords > 0 {
 		totalPages = int((totalRecords + int64(limit) - 1) / int64(limit))
 	}
+
+	//sorting
+	sortBy := r.URL.Query().Get("sort_by")
+
+	if sortBy == "" {
+		sortBy = "created_at"
+	}
+
+	order := r.URL.Query().Get("order")
+
+	if order != "asc" {
+		order = "desc"
+	}
+
+	query = query.Order(sortBy + " " + order).Offset(offset).Limit(limit)
 
 	var todo []models.Todo
 
@@ -103,10 +104,10 @@ func Index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	paginationData := map[string]interface{}{
-		"page":          page,
-		"limit":         limit,
-		"total_records": totalRecords,
-		"total_pages":   totalPages,
+		"page":        page,
+		"limit":       limit,
+		"total":       totalRecords,
+		"total_pages": totalPages,
 	}
 
 	finalResponse := map[string]interface{}{
